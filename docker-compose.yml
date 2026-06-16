@@ -1,0 +1,40 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8085:80"
+    depends_on:
+      backend:
+        condition: service_started
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: barista
+      DB_USER: barista
+      DB_PASSWORD: barista_password
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: barista
+      POSTGRES_USER: barista
+      POSTGRES_PASSWORD: barista_password
+    volumes:
+      - barista-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U barista -d barista"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  barista-db-data:
