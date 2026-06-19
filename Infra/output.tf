@@ -1,39 +1,34 @@
-output "app_server_public_ip" {
-  description = "Public IP address of the application server"
-  value       = aws_instance.app_server.public_ip
+# Show K3s Master public IP
+output "master_public_ip" {
+  value = aws_instance.master_server.public_ip
 }
 
-output "app_server_public_dns" {
-  description = "Public DNS name of the application server"
-  value       = aws_instance.app_server.public_dns
+# Show K3s Worker public IP
+output "worker_public_ip" {
+  value = aws_instance.worker_server.public_ip
 }
 
-output "db_server_private_ip" {
-  description = "Private IP address of the PostgreSQL server"
-  value       = aws_instance.db_server.private_ip
+# Show K3s Master private IP
+output "master_private_ip" {
+  value = aws_instance.master_server.private_ip
 }
 
+# Show K3s Worker private IP
+output "worker_private_ip" {
+  value = aws_instance.worker_server.private_ip
+}
+
+# Show generated private key file path
+output "private_key_path" {
+  value = local_file.barista_private_key.filename
+}
+
+# Show VPC ID
 output "vpc_id" {
-  description = "ID of the main VPC"
-  value       = aws_vpc.main.id
+  value = aws_vpc.main.id
 }
 
-output "public_subnet_id" {
-  description = "ID of the public subnet"
-  value       = aws_subnet.public_subnet.id
-}
-
-output "private_subnet_id" {
-  description = "ID of the private subnet"
-  value       = aws_subnet.private_subnet.id
-}
-
-output "app_security_group_id" {
-  description = "ID of the application server security group"
-  value       = aws_security_group.devops_sg.id
-}
-
-output "db_security_group_id" {
-  description = "ID of the PostgreSQL server security group"
-  value       = aws_security_group.db_sg.id
+# Show Security Group ID
+output "security_group_id" {
+  value = aws_security_group.devops_sg.id
 }

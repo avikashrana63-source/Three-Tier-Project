@@ -13,7 +13,6 @@
       apt:
         name:
           - docker.io
-          - docker-compose-plugin
           - git
           - curl
         state: present

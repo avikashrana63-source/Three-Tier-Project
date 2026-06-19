@@ -1,61 +1,46 @@
-# ==========================================
-# 2. APPLICATION SERVER (Public Subnet)
-# ==========================================
-resource "aws_instance" "app_server" {
-  ami           = var.ami_id
-  instance_type = "t3.micro"
-
-  # Placed in the Public Subnet (accessible from the internet)
-  subnet_id = aws_subnet.public_subnet.id
-
-  # Attached to the App/K3s Security Group
-  vpc_security_group_ids = [aws_security_group.devops_sg.id]
-
-  # SSH Key Pair variable applied here
-  key_name = var.key_name
-
-  tags = {
-    Name = "devops-app-server"
-  }
-
-  # Bootstrap script to install Docker and Docker Compose automatically
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update -y
-              apt-get install -y docker.io
-              systemctl start docker
-              systemctl enable docker
-              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              chmod +x /usr/local/bin/docker-compose
-              EOF
+# Create SSH key pair for both EC2 instances
+resource "tls_private_key" "barista_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
-# ==========================================
-# 3. POSTGRESQL SERVER (Private Subnet)
-# ==========================================
-resource "aws_instance" "db_server" {
-  ami           = var.ami_id
-  instance_type = "t3.micro"
+resource "aws_key_pair" "barista_key" {
+  key_name   = "barista-key"
+  public_key = tls_private_key.barista_key.public_key_openssh
+}
 
-  # Placed in the Private Subnet (completely isolated from the internet)
-  subnet_id = aws_subnet.private_subnet.id
+resource "local_file" "barista_private_key" {
+  content         = tls_private_key.barista_key.private_key_pem
+  filename        = "${path.module}/barista-key.pem"
+  file_permission = "0400"
+}
 
-  # Attached to the Database Security Group (Only allows port 5432 from app_server)
-  vpc_security_group_ids = [aws_security_group.db_sg.id]
-
-  # SSH Key Pair applied here as well (accessible internally via App Server if needed)
-  key_name = var.key_name
+# Create K3s Master EC2 instance in public subnet
+resource "aws_instance" "master_server" {
+  ami                         = var.ami_id
+  instance_type               = "c7i-flex.large"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.devops_sg.id]
+  key_name                    = aws_key_pair.barista_key.key_name
+  associate_public_ip_address = true
 
   tags = {
-    Name = "devops-db-server"
+    Name = "k3s-master"
+    Role = "master"
   }
+}
 
-  # Bootstrap script to install Docker on the database machine
-  user_data = <<-EOF
-              #!/bin/bash
-              apt-get update -y
-              apt-get install -y docker.io
-              systemctl start docker
-              systemctl enable docker
-              EOF
+# Create K3s Worker EC2 instance in public subnet
+resource "aws_instance" "worker_server" {
+  ami                         = var.ami_id
+  instance_type               ="c7i-flex.large"
+  subnet_id                   = aws_subnet.public_subnet.id
+  vpc_security_group_ids      = [aws_security_group.devops_sg.id]
+  key_name                    = aws_key_pair.barista_key.key_name
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "k3s-worker"
+    Role = "worker"
+  }
 }

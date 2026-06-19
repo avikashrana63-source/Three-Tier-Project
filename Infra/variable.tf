@@ -9,8 +9,4 @@ variable "ami_id" {
   type        = string
   default     = "ami-01a00762f46d584a1"
 }
-variable "key_name" {
-  description = "Key pair name for SSH access to EC2 instances"
-  type        = string
-  default     = "my-key"
-}
+

@@ -1,5 +1,5 @@
 [master]
-13.233.100.10 ansible_user=ubuntu ansible_ssh_private_key_file=~/my-key.pem
+13.233.212.131 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
 
 [worker]
-15.206.200.20 ansible_user=ubuntu ansible_ssh_private_key_file=~/my-key.pem
+13.207.204.233 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
