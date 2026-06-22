@@ -1,23 +1,33 @@
 ---
-- name: Configure EC2 Servers
+- name: Configure Frontend and Backend Servers
   hosts: all
   become: yes
 
   tasks:
 
-    - name: Update packages
+    - name: Update apt packages
       apt:
         update_cache: yes
+        upgrade: yes
 
     - name: Install required packages
       apt:
         name:
           - docker.io
+          - docker-compose-v2
           - git
           - curl
+          - wget
+          - unzip
+          - vim
+          - net-tools
+          - htop
+          - jq
+          - python3
+          - python3-pip
         state: present
 
-    - name: Start Docker
+    - name: Start Docker service
       service:
         name: docker
         state: started
@@ -28,3 +38,19 @@
         name: ubuntu
         groups: docker
         append: yes
+
+    - name: Verify Docker installation
+      command: docker --version
+      register: docker_version
+
+    - name: Display Docker version
+      debug:
+        var: docker_version.stdout
+
+    - name: Verify Docker Compose installation
+      command: docker compose version
+      register: compose_version
+
+    - name: Display Docker Compose version
+      debug:
+        var: compose_version.stdout
