@@ -3,9 +3,9 @@ services:
     build:
       context: ./backend
     ports:
-      - "3085:3085"
+      - "3000:3000"
     environment:
-      PORT: 3085
+      PORT: 3000
       DB_HOST: db
       DB_PORT: 5432
       DB_NAME: barista
