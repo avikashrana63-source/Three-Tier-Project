@@ -45,7 +45,8 @@ jobs:
             set -e
             [ ! -d '$APP_DIR' ] && git clone https://github.com/avikashrana63-source/Three-Tier-Project.git '$APP_DIR'
             cd '$APP_DIR' && git pull origin main
-            docker compose -f docker-compose.backend.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.backend.yml down --remove-orphans || true
+            docker compose -f docker-compose.backend.yml up -d --build
           "
 
   deploy-frontend:
@@ -75,5 +76,6 @@ jobs:
             set -e
             [ ! -d '$APP_DIR' ] && git clone https://github.com/avikashrana63-source/Three-Tier-Project.git '$APP_DIR'
             cd '$APP_DIR' && git pull origin main
-            docker compose -f docker-compose.frontend.yml up -d --build --remove-orphans
+            docker compose -f docker-compose.frontend.yml down --remove-orphans || true
+            docker compose -f docker-compose.frontend.yml up -d --build
           "
