@@ -1,5 +1,5 @@
 [master] 
-3.110.31.147 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
+52.66.37.71 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
 
 [worker]
-13.201.1.240 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
+13.202.181.138 ansible_user=ubuntu ansible_ssh_private_key_file=../Infra/barista-key.pem
