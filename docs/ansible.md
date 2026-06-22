@@ -4,23 +4,23 @@ This document describes the `ansible/` folder and how it is used to configure se
 
 Repository layout
 
-- `ansible/inventory/hosts` — inventory file listing target hosts (groups: bastion, app, db, k3s-nodes).
-- `ansible/playbooks/setup.yml` — main playbook to bootstrap and configure hosts (install Docker, k3s, users, pull images, apply system config).
+- `ansible/inventory/hosts` — inventory file listing target hosts (for example, app servers).
+- `ansible/playbooks/setup.yml` — main playbook to bootstrap hosts for Docker Compose deployment.
 
 What each file does
 
 - `inventory/hosts`
   - Groups hosts by purpose and contains connection attributes (ansible_user, ansible_ssh_private_key_file, ansible_host).
-  - Example groups: `[bastion]`, `[app_servers]`, `[db]`, `[k3s_nodes]`.
+  - Example groups: `[app_servers]`.
 
 - `playbooks/setup.yml`
   - Idempotent tasks to:
     - Update packages and install dependencies (curl, git, docker)
     - Configure Docker and add user to `docker` group
-    - Install k3s (or join k3s cluster) and configure kubeconfig
-    - Create application directories and set permissions
-    - Pull container images or run `docker-compose` if used
-    - Configure systemd services, firewall, and basic monitoring agents
+    - Prepare the server to run `docker compose`
+    - Create application directories and set permissions if deployment tasks are added later
+    - Pull the repository and run `docker compose up -d --build` if deployment tasks are added later
+    - Configure systemd services, firewall, and basic monitoring agents if needed
   - Uses roles or task includes where appropriate for separation of concerns.
 
 Common variables and secrets
@@ -49,7 +49,7 @@ ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ansible/inventory/hosts ansi
 - Limit to groups or tags:
 
 ```bash
-ansible-playbook -i ansible/inventory/hosts ansible/playbooks/setup.yml --limit "app_servers" --tags docker,k3s
+ansible-playbook -i ansible/inventory/hosts ansible/playbooks/setup.yml --limit "app_servers"
 ```
 
 Integration with Terraform
@@ -68,9 +68,9 @@ Best practices
 
 - Keep playbooks idempotent and use handlers for service restarts.
 - Use `--check` for dry-runs in staging before production changes.
-- Use roles for reusable components (docker, k3s, postgres, app deployment).
+- Use roles for reusable components (docker, app deployment, monitoring).
 - Secure secrets with Ansible Vault and do not store plaintext secrets in repository.
-- Pin versions for critical actions (k3s version, docker packages) to avoid drift.
+- Pin versions for critical actions (Docker packages, base images) to avoid drift.
 
 SSH access and permissions
 
@@ -90,7 +90,7 @@ Example CI usage (GitHub Actions)
   1. Run `terraform apply` (infrastructure)
   2. Generate inventory from Terraform outputs
   3. Run `ansible-playbook` to configure servers
-  4. Deploy k3s manifests or trigger deployment jobs
+  4. Deploy the Docker Compose stack
 
 Example GitHub Actions snippet:
 
@@ -100,12 +100,13 @@ Example GitHub Actions snippet:
     terraform output -json > infra/terraform/outputs.json
     python scripts/convert_tf_outputs_to_inventory.py --input infra/terraform/outputs.json --output ansible/inventory/hosts
     ansible-playbook -i ansible/inventory/hosts ansible/playbooks/setup.yml --private-key ~/.ssh/id_rsa -u ubuntu --become
+    ssh -i ~/.ssh/id_rsa ubuntu@<server-ip> "cd /home/ubuntu/cafe_barista && docker compose up -d --build"
 ```
 
 Next steps
 
 - If you want, I can:
-  - Inspect `ansible/playbooks/setup.yml` and annotate it line-by-line.
+  - Inspect `ansible/playbooks/setup.yml` and extend it to clone the repo and run Docker Compose.
   - Generate a dynamic inventory script from your Terraform outputs.
   - Convert this doc into `docs/ansible.pdf`.
 

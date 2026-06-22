@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: cafe-barista-frontend:latest
+          image: ravikash093/barista-frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

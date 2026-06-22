@@ -1,11 +1,11 @@
 #!/bin/bash
 
 FRONTEND_URL="http://localhost:8085"
-BACKEND_URL="http://localhost:3000/api/health"
+BACKEND_URL="http://localhost:8085/api/health"
 
 echo "Checking frontend..."
-curl -f "$FRONTEND_URL" && echo "Frontend is healthy" || echo "Frontend is down"
+curl -fsS -o /dev/null "$FRONTEND_URL" && echo "Frontend is healthy" || echo "Frontend is down"
 
 echo
 echo "Checking backend..."
-curl -f "$BACKEND_URL" && echo "Backend is healthy" || echo "Backend is down"
+curl -fsS -o /dev/null "$BACKEND_URL" && echo "Backend is healthy" || echo "Backend is down"

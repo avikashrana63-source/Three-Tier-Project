@@ -108,6 +108,7 @@ Common setup:
 
 ```bash
 chmod +x scripts/*.sh
+
 ```
 
 ## K3s Deployment Summary
@@ -210,8 +211,15 @@ sudo kubectl apply -f ingress.yaml
 
 Or apply everything:
 
+
 ```bash
+git clone https://github.com/avikashrana63-source/Three-Tier-Project.git
+cd Three-Tier-Project
+ls
+
 sudo kubectl apply -f .
+sudo kubectl apply --dry-run=client -f k3s/
+sudo kubectl apply -f k3s/
 ```
 
 ### Verify Deployment

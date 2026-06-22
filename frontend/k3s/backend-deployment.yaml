@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: cafe-barista-backend:latest
+          image: ravikash093/barista-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
